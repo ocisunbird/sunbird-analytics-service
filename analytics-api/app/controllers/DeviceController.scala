@@ -42,6 +42,7 @@ class DeviceController @Inject()(
     }
     val userDefinedState = (body \ "request" \ "userDeclaredLocation" \ "state").asOpt[String]
     val userDefinedDistrict = (body \ "request" \ "userDeclaredLocation" \ "district").asOpt[String]
+    val userSelectedRole = (body \ "request" \ "userDeclaredLocation" \ "role").asOpt[String]
 
     val extMap: Option[Map[String, String]] = (body \ "request" \ "ext").toOption.map {
       value => {
@@ -54,7 +55,7 @@ class DeviceController @Inject()(
     }
 
     val deviceRegisterResult = deviceRegisterActor.ask(RegisterDevice(deviceId, headerIP, ipAddr, fcmToken, producer,
-      dspec, uaspec, firstAccess, userDefinedState, userDefinedDistrict)).mapTo[Option[DeviceRegisterStatus]]
+      dspec, uaspec, firstAccess, userDefinedState, userDefinedDistrict, userSelectedRole)).mapTo[Option[DeviceRegisterStatus]]
 
     if (isExperimentEnabled) {
       val expApiResult = sendExperimentData(Some(deviceId), extMap.getOrElse(Map()).get("userId"), extMap.getOrElse(Map()).get("url"), producer)
