@@ -15,10 +15,10 @@ import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class RegisterDevice(did: String, headerIP: String, ip_addr: Option[String] = None, fcmToken: Option[String] = None, producer: Option[String] = None, dspec: Option[String] = None, uaspec: Option[String] = None, first_access: Option[Long] = None, user_declared_state: Option[String] = None, user_declared_district: Option[String] = None, user_selected_role: Option[String] = None)
-case class DeviceProfileLog(device_id: String, location: DeviceLocation, device_spec: Option[Map[String, AnyRef]] = None, uaspec: Option[String] = None, fcm_token: Option[String] = None, producer_id: Option[String] = None, first_access: Option[Long] = None, user_declared_state: Option[String] = None, user_declared_district: Option[String] = None, user_selected_role: Option[String] = None)
+case class RegisterDevice(did: String, headerIP: String, ip_addr: Option[String] = None, fcmToken: Option[String] = None, producer: Option[String] = None, dspec: Option[String] = None, uaspec: Option[String] = None, first_access: Option[Long] = None, user_declared_state: Option[String] = None, user_declared_district: Option[String] = None)
+case class DeviceProfileLog(device_id: String, location: DeviceLocation, device_spec: Option[Map[String, AnyRef]] = None, uaspec: Option[String] = None, fcm_token: Option[String] = None, producer_id: Option[String] = None, first_access: Option[Long] = None, user_declared_state: Option[String] = None, user_declared_district: Option[String] = None)
 case class DeviceProfile(userDeclaredLocation: Option[Location], ipLocation: Option[Location])
-case class Location(state: String, district: String, role: Option[String] = None)
+case class Location(state: String, district: String)
 
 sealed trait DeviceRegisterStatus
 case object DeviceRegisterSuccesfulAck extends DeviceRegisterStatus
@@ -96,7 +96,7 @@ class DeviceRegisterService @Inject() (@Named("save-metrics-actor") saveMetricsA
 
       val deviceProfileLog = DeviceProfileLog(registrationDetails.did, location, Option(deviceSpec),
         registrationDetails.uaspec, registrationDetails.fcmToken, registrationDetails.producer, registrationDetails.first_access,
-        registrationDetails.user_declared_state, registrationDetails.user_declared_district, registrationDetails.user_selected_role)
+        registrationDetails.user_declared_state, registrationDetails.user_declared_district)
 
       logDeviceRegisterEvent(deviceProfileLog)
       Option(DeviceRegisterSuccesfulAck)
@@ -151,8 +151,7 @@ class DeviceRegisterService @Inject() (@Named("save-metrics-actor") saveMetricsA
         "api_last_updated_on" -> currentTime,
         "first_access" -> currentTime,
         "user_declared_state" -> result.user_declared_state,
-        "user_declared_district" -> result.user_declared_district,
-        "user_selected_role" -> result.user_selected_role)
+        "user_declared_district" -> result.user_declared_district)
     JSONUtils.serialize(deviceProfile)
   }
 
@@ -165,8 +164,7 @@ class DeviceRegisterService @Inject() (@Named("save-metrics-actor") saveMetricsA
         "fcm_token" -> registrationDetails.fcmToken.getOrElse(""),
         "producer" -> registrationDetails.producer.getOrElse(""),
         "user_declared_state" -> registrationDetails.user_declared_state.getOrElse(""),
-        "user_declared_district" -> registrationDetails.user_declared_district.getOrElse(""),
-        "user_selected_role" -> registrationDetails.user_selected_role.getOrElse(""))
+        "user_declared_district" -> registrationDetails.user_declared_district.getOrElse(""))
 
     (dataMap ++ deviceLocation.toMap()).filter(data => data._2 != null && data._2.nonEmpty)
   }

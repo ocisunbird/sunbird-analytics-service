@@ -67,11 +67,11 @@ class DeviceProfileService @Inject() (config: Config, redisUtil: RedisUtil) exte
       }
 
       val userDeclaredLoc = if (deviceLocation.nonEmpty && deviceLocation.get.getOrElse("user_declared_state", "").nonEmpty) {
-        Option(Location(deviceLocation.get("user_declared_state"), deviceLocation.get("user_declared_district"), Option(deviceLocation.get("user_selected_role"))))
+        Option(Location(deviceLocation.get("user_declared_state"), deviceLocation.get("user_declared_district")))
       } else None
 
       userDeclaredLoc.foreach { declaredLocation =>
-        APILogger.log("", Option(Map("comments" -> s"[did: $did, user_declared_state: ${declaredLocation.state}, user_declared_district: ${declaredLocation.district}, user_selected_role: ${declaredLocation.role}")), "DeviceProfileService")
+        APILogger.log("", Option(Map("comments" -> s"[did: $did, user_declared_state: ${declaredLocation.state}, user_declared_district: ${declaredLocation.district}")), "DeviceProfileService")
       }
 
       Some(DeviceProfile(userDeclaredLoc, Option(Location(ipLocationFromH2.state, ipLocationFromH2.districtCustom))))
